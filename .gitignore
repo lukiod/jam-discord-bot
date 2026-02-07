@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+jam_bot.db
+.env
