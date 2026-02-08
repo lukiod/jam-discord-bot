@@ -56,8 +56,11 @@ IGNORED_PREFIXES = ("!", "/", "?", ".")  # ignore bot commands
 # channels where threads should be auto-archived (keeps sidebar clean)
 AUTO_ARCHIVE_CHANNELS = ["intros"]
 
+# channel where the bot will post level-up announcements
+ANNOUNCEMENT_CHANNEL_NAME = "commands"
+
 # channel where the bot will post referral announcements (set to None to use system channel)
-REFERRAL_CHANNEL_NAME = "general"
+REFERRAL_CHANNEL_NAME = "commands"
 
 # ---------------------------------------------------------------------------
 # Database setup (PostgreSQL)
@@ -514,9 +517,12 @@ async def on_message(message: discord.Message):
     if new_level > user["level"]:
         role_name = ROLE_NAMES.get(new_level, f"level {new_level}")
         emoji = level_emoji(new_level)
-        await message.channel.send(
-            f"{emoji} **{message.author.display_name}** just reached **{role_name}**! (level {new_level}) {emoji}"
-        )
+        # post in commands channel instead of current channel
+        announce_ch = discord.utils.get(guild.text_channels, name=ANNOUNCEMENT_CHANNEL_NAME)
+        if announce_ch:
+            await announce_ch.send(
+                f"{emoji} <@{message.author.id}> just reached **{role_name}**! (level {new_level}) {emoji}"
+            )
         if member:
             await sync_roles(member, new_level)
 
