@@ -19,6 +19,7 @@ Referrals:
 
 import os
 import time
+import random
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -403,6 +404,7 @@ async def dm_welcome(member: discord.Member, invite_url: str = None):
                 "`/leaderboard` — see the top members\n"
                 "`/mylink` — get your referral link\n"
                 "`/myreferrals` — see who you've referred"
+                "`/am i jam?` — checks whether you're jam or bread\n"
             ),
             inline=False,
         )
@@ -963,6 +965,12 @@ async def test_welcome(interaction: discord.Interaction):
     except Exception as e:
         print(f"error in /test-welcome: {e}")
         await interaction.followup.send(f"error: {e}")
+
+
+@bot.tree.command(name="am-i-jam", description="are you jam?")
+async def am_i_jam(interaction: discord.Interaction):
+    result = random.choice(["you are a jam 🍓", "you are a loafer 🍞"])
+    await interaction.response.send_message(result)
 
 
 # ---------------------------------------------------------------------------
