@@ -659,8 +659,21 @@ async def rank(interaction: discord.Interaction, member: discord.Member = None):
         if next_level in LEVEL_THRESHOLDS:
             next_req = LEVEL_THRESHOLDS[next_level]
             xp_progress = f"{user['xp']}/{next_req['xp']} xp"
+            # calculate progress bar
+            prev_xp = LEVEL_THRESHOLDS[current_level]["xp"] if current_level in LEVEL_THRESHOLDS else 0
+            xp_in_level = user["xp"] - prev_xp
+            xp_needed = next_req["xp"] - prev_xp
+            progress = max(0.0, min(1.0, xp_in_level / xp_needed)) if xp_needed > 0 else 1.0
+            bar_length = 10
+            filled = round(progress * bar_length)
+            bar = "\u2588" * filled + "\u2500" * (bar_length - filled)
+            next_role = ROLE_NAMES.get(next_level, f"level {next_level}")
+            next_emoji = level_emoji(next_level)
+            progress_text = f"`{bar}` {int(progress * 100)}%\n{next_emoji} **{next_role}**"
         else:
             xp_progress = f"{user['xp']} xp (max level!)"
+            bar = "\u2588" * 10
+            progress_text = f"`{bar}` 100%\n♾️ **max level reached!**"
 
         embed = discord.Embed(
             title=f"{emoji} {target.display_name}'s rank",
@@ -670,6 +683,7 @@ async def rank(interaction: discord.Interaction, member: discord.Member = None):
         embed.add_field(name="xp", value=xp_progress, inline=True)
         embed.add_field(name="referrals", value=str(user["referrals"]), inline=True)
         embed.add_field(name="total messages", value=str(user["total_messages"]), inline=True)
+        embed.add_field(name="progress", value=progress_text, inline=False)
         embed.set_thumbnail(url=target.display_avatar.url)
 
         await interaction.followup.send(embed=embed)
@@ -1008,6 +1022,29 @@ async def test_welcome(interaction: discord.Interaction):
 async def am_i_jam(interaction: discord.Interaction):
     result = random.choice(["You're the bread to my jam", "everyone is jam in their own way, but you, you'll always remain my bread"])
     await interaction.response.send_message(result)
+
+
+@bot.tree.command(name="8ball", description="ask the magic 8-ball a question")
+@app_commands.describe(question="your question for the 8-ball")
+async def eight_ball(interaction: discord.Interaction, question: str):
+    responses = [
+        "It is certain.", "It is decidedly so.", "Without a doubt.", "Yes, definitely.",
+        "You may rely on it.", "As I see it, yes.", "Most likely.", "Bread says yes.",
+        "Yes.", "Signs point to yes.",
+        "Hmmmm, Jam is confused, ask later.", "Ask again later.", "Better not tell you now.",
+        "Cannot predict now.", "Jam doesn't like it. Concentrate and ask again.",
+        "Don't count on it.", "My reply is no.", "My sources say no.",
+        "Bread says no.", "Very doubtful.",
+    ]
+    answer = random.choice(responses)
+    embed = discord.Embed(
+        title="\U0001f3b1 magic 8-ball",
+        color=discord.Color.dark_purple(),
+    )
+    embed.add_field(name="question", value=question, inline=False)
+    embed.add_field(name="answer", value=f"*{answer}*", inline=False)
+    embed.set_footer(text=f"asked by {interaction.user.display_name}")
+    await interaction.response.send_message(embed=embed)
 
 
 # ---------------------------------------------------------------------------
