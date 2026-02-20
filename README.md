@@ -148,7 +148,7 @@ credits to **hassan2bit bread** on discord for naming infinity jam
 
 <div align="center">
 
-**[join the jam](https://discord.gg/5sdGUP4pG5)**
+**[join the jam discord](https://discord.gg/5sdGUP4pG5)**
 
 -jia 
 
